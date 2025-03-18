@@ -834,11 +834,27 @@ Pdu Mac::pduProcessResource(Pdu mac_pdu, MacLogicalChannel macLogicalChannel, bo
 
         // 21.5.2 channel allocation elements table 21.82 (may be encrypted)
         pos += 2;                                                               // channel allocation type
+        uint8_t ts_bits = pdu.getValue(pos, 4);
+        switch (ts_bits) {
+            case 0x0001:
+                m_macAddress.allocationTimeslot = 4;
+                break;
+            case 0x0010:
+                m_macAddress.allocationTimeslot = 3;
+                break;
+            case 0x0100:
+                m_macAddress.allocationTimeslot = 2;
+                break;
+            case 0x1000:
+                m_macAddress.allocationTimeslot = 1;
+                break;
+            }
         pos += 4;                                                               // timeslot assigned
         uint8_t ul_dl = pdu.getValue(pos, 2);
         pos += 2;                                                               // up/downlink assigned
         pos += 1;                                                               // CLCH permission
         pos += 1;                                                               // cell change flag
+        m_macAddress.allocationCarrierNumber = pdu.getValue(pos, 12);
         pos += 12;                                                              // carrier number
         flag = pdu.getValue(pos, 1);                                            // extended carrier numbering flag
         pos += 1;
@@ -1104,9 +1120,9 @@ Pdu Mac::pduProcessSysinfo(Pdu pdu, int32_t * pduSizeInMac)
 
         // calculate cell frequencies
 
-        const int32_t duplex[4] = {0, 6250, -6250, 12500};                      // 21.4.4.1
+        const int32_t carrierOffset[4] = {0, 6250, -6250, 12500};                      // 21.4.4.1
 
-        m_tetraCell->setFrequencies((int32_t)band_frequency * 100000000 + (int32_t)main_carrier * 25000 + duplex[offset], 0);
+        m_tetraCell->setFrequencies((int32_t)band_frequency * 100000000 + (int32_t)main_carrier * 25000 + carrierOffset[offset], 0);
 
         sdu = Pdu(pdu, pos, 42);                                                // TM-SDU (MLE data) clause 18
 

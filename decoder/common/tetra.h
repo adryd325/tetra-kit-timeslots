@@ -63,6 +63,8 @@ namespace Tetra {
         uint32_t smi;
         uint32_t ssi;
         uint32_t ussi;
+        uint16_t allocationCarrierNumber;
+        uint8_t allocationTimeslot;
     };
 
     /**

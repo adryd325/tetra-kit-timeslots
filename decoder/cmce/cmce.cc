@@ -185,8 +185,8 @@ void Cmce::service(Pdu pdu, const MacLogicalChannel macLogicalChannel, TetraTime
 
     if (bCompletePrint)
     {
-        m_log->print(LogLevel::LOW, "service_cmce: TN/FN/MN = %2u/%2u/%2u  %-20s  len=%3lu  cid=%u  ssi=%8u  usage_marker=%2u, encr=%u\n", m_tetraTime.tn, m_tetraTime.fn, m_tetraTime.mn,
-                     txt.c_str(), pdu.size(), cid, m_macAddress.ssi, m_macAddress.usageMarker, m_macAddress.encryptionMode);
+        m_log->print(LogLevel::LOW, "service_cmce: TN/FN/MN = %2u/%2u/%2u  %-20s  len=%3lu  cid=%u  ssi=%8u  usage_marker=%2u, encr=%u assigned_carrier=%i assigned_timeslot=%x\n", m_tetraTime.tn, m_tetraTime.fn, m_tetraTime.mn,
+                     txt.c_str(), pdu.size(), cid, m_macAddress.ssi, m_macAddress.usageMarker, m_macAddress.encryptionMode, m_macAddress.allocationCarrierNumber, m_macAddress.allocationTimeslot);
     }
     else
     {
@@ -672,6 +672,9 @@ void Cmce::parseDSetup(Pdu pdu)
     m_log->print(LogLevel::HIGH, "DEBUG ::%-44s - pdu = %s\n", "cmce_parse_d_setup", pdu.toString().c_str());
 
     m_report->start("CMCE", "D-SETUP", m_tetraTime, m_macAddress);
+
+    m_report->add("allocation carrier number", m_macAddress.allocationCarrierNumber);
+    m_report->add("allocation timeslot", m_macAddress.allocationTimeslot);
 
     uint32_t pos = 5;                                                           // pdu type
 

@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This is a fork of https://gitlab.com/larryth/tetra-kit. This fork aims to move from identifying calls based on usage identifiers to identifying calls with channel allocations. This should in theory be a path to fixing https://gitlab.com/larryth/tetra-kit/-/issues/52. This fork is not be considered usable at the moment. I felt the need to note this because GitHub shows up higher in search engine results and I don't want this obscuring the original.
+
 # Tetra-kit
 
 TETRA downlink decoder/recorder kit
