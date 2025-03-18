@@ -835,17 +835,18 @@ Pdu Mac::pduProcessResource(Pdu mac_pdu, MacLogicalChannel macLogicalChannel, bo
         // 21.5.2 channel allocation elements table 21.82 (may be encrypted)
         pos += 2;                                                               // channel allocation type
         uint8_t ts_bits = pdu.getValue(pos, 4);
+        // In theory this is a bitfield. I'm hoping that only one timeslot is used for group calls
         switch (ts_bits) {
-            case 0x0001:
+            case 0b0001:
                 m_macAddress.allocationTimeslot = 4;
                 break;
-            case 0x0010:
+            case 0b0010:
                 m_macAddress.allocationTimeslot = 3;
                 break;
-            case 0x0100:
+            case 0b0100:
                 m_macAddress.allocationTimeslot = 2;
                 break;
-            case 0x1000:
+            case 0b1000:
                 m_macAddress.allocationTimeslot = 1;
                 break;
             }

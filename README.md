@@ -1,6 +1,11 @@
 > [!IMPORTANT]
 > This is a fork of https://gitlab.com/larryth/tetra-kit. This fork aims to move from identifying calls based on usage identifiers to identifying calls with channel allocations. This should in theory be a path to fixing https://gitlab.com/larryth/tetra-kit/-/issues/52. This fork is not be considered usable at the moment. I felt the need to note this because GitHub shows up higher in search engine results and I don't want this obscuring the original.
 
+TODO:
+ - [X] Add channel allocation information to D-SETUP
+ - [ ] Add own carrier metadata or receiver id to every JSON object sent over UDP
+ - [ ] Rework recorder to identify calls based on carrier + timeslot instead of usage identifier
+
 # Tetra-kit
 
 TETRA downlink decoder/recorder kit
