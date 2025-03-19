@@ -43,6 +43,7 @@ int main(int argc, char * argv[])
 
     int udpPortRx = 42000;                                                      // UDP RX port (ie. where to receive bits from PHY layer)
     int udpPortTx = 42100;                                                      // UDP TX port (ie. where to send Json data)
+    int selfCarrierNum = 0;
 
     const int FILENAME_LEN = 256;
     char optFilenameInput[FILENAME_LEN]  = "";                                  // input bits filename
@@ -54,7 +55,7 @@ int main(int argc, char * argv[])
     bool bEnableWiresharkOutput = false;
 
     int option;
-    while ((option = getopt(argc, argv, "hPwr:t:i:o:d:f")) != -1)
+    while ((option = getopt(argc, argv, "hPwr:t:i:o:d:c:f")) != -1)
     {
         switch (option)
         {
@@ -83,6 +84,10 @@ int main(int argc, char * argv[])
             debugLevel = atoi(optarg);
             break;
 
+        case 'c':
+            selfCarrierNum = atoi(optarg);
+            break;
+
         case 'f':
             bRemoveFillBits = false;
             break;
@@ -90,7 +95,7 @@ int main(int argc, char * argv[])
         case 'w':
             bEnableWiresharkOutput = true;
             break;
-
+        
         case 'h':
             printf("\nUsage: ./decoder [OPTIONS]\n\n"
                    "Options:\n"
@@ -102,6 +107,7 @@ int main(int argc, char * argv[])
                    "  -f keep fill bits\n"
                    "  -w enable wireshark output [EXPERIMENTAL]\n"
                    "  -P pack rx data (1 byte = 8 bits)\n"
+                   "  -c <carrier num> send carrier number flag to recorder, used\n"
                    "  -h print this help\n\n");
             exit(EXIT_FAILURE);
             break;
@@ -206,7 +212,7 @@ int main(int argc, char * argv[])
     }
 
     // create decoder
-    Tetra::TetraDecoder * decoder = new Tetra::TetraDecoder(udpSocketFd, bRemoveFillBits, logLevel, bEnableWiresharkOutput);
+    Tetra::TetraDecoder * decoder = new Tetra::TetraDecoder(udpSocketFd, bRemoveFillBits, logLevel, bEnableWiresharkOutput, selfCarrierNum);
 
     // receive buffer
     const int RXBUF_LEN = 1024;

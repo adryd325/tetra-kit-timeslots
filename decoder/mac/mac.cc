@@ -102,6 +102,7 @@ TetraTime Mac::getTime()
 
 void Mac::incrementTn()
 {
+    // printf("TN/FN/MN = %2d/%2d/%2d\n", m_tetraTime.tn, m_tetraTime.fn, m_tetraTime.mn);
     m_tetraTime.tn++;
 
     // time slot
@@ -1208,10 +1209,19 @@ Pdu Mac::pduProcessSync(Pdu pdu)
         uint32_t pos = 4;                                                       // system code
         uint16_t colorCode = pdu.getValue(pos, 6);
         pos += 6;
+        if (m_tetraTime.tn != pdu.getValue(pos, 2) + 1) {
+            printf("\n\x1b[1;31m!!!WARN!!! Timeslot desynced. had: %i got: %i\x1b[0m\n\n",m_tetraTime.tn,pdu.getValue(pos, 2)+1);
+        }
         m_tetraTime.tn = pdu.getValue(pos, 2) + 1;
         pos += 2;
+        if (m_tetraTime.fn != pdu.getValue(pos, 5)) {
+            printf("\n\x1b[1;31m!!!WARN!!! Frame desynced. had: %i got: %i\x1b[0m\n\n",m_tetraTime.fn,pdu.getValue(pos, 5));
+        }
         m_tetraTime.fn = pdu.getValue(pos, 5);
         pos += 5;
+        if (m_tetraTime.mn != pdu.getValue(pos, 6)) {
+            printf("\n\x1b[1;31m!!!WARN!!! Superframe desynced. had: %i got: %i\x1b[0m\n\n",m_tetraTime.mn, pdu.getValue(pos, 6));
+        }
         m_tetraTime.mn = pdu.getValue(pos, 6);
         pos += 6;
         pos += 2;                                                               // sharing mode

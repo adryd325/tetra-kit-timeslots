@@ -27,7 +27,7 @@ namespace Tetra {
 
     class Report {
     public:
-        Report(const int socketFd, Tetra::Log * log);
+        Report(const int socketFd, Tetra::Log * log, const int carrierNum);
         ~Report();
 
         void start(const std::string service, const std::string pdu, const TetraTime tetraTime, const MacAddress macAddress);
@@ -45,6 +45,7 @@ namespace Tetra {
 
     private:
         int m_socketFd;                                                         ///< UDP socket to write to
+        uint16_t m_carrierNum;                                                  ///< Carrier number of own downlink to send to recorder
         Tetra::Log * m_log;                                                     ///< Screen logger
 
         ///< rapidjson document

@@ -7,13 +7,14 @@ using namespace Tetra;
  *
  */
 
-TetraDecoder::TetraDecoder(int socketFd, bool bRemoveFillBits, const LogLevel logLevel, bool bEnableWiresharkOutput)
+TetraDecoder::TetraDecoder(int socketFd, bool bRemoveFillBits, const LogLevel logLevel, bool bEnableWiresharkOutput, int selfCarrierNum)
 {
     m_socketFd = socketFd;
+    m_selfCarrierNum = selfCarrierNum;
 
     m_log       = new Log(logLevel);
 
-    m_report    = new Report(m_socketFd, m_log);
+    m_report    = new Report(m_socketFd, m_log, m_selfCarrierNum);
     m_tetraCell = new TetraCell();
 
     m_sds    = new Sds(m_log, m_report);

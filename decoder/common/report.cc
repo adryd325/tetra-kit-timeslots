@@ -12,10 +12,11 @@ typedef rapidjson::GenericValue<rapidjson::UTF8<>, rapidjson::CrtAllocator> Gene
  *
  */
 
-Report::Report(const int socketFd, Tetra::Log * log)
+Report::Report(const int socketFd, Tetra::Log * log, const int carrierNum)
 {
     m_socketFd = socketFd;
     m_log      = log;
+    m_carrierNum = (uint16_t) carrierNum;
 }
 
 /**
@@ -50,6 +51,7 @@ void Report::start(std::string service, std::string pdu, const TetraTime tetraTi
     add("time", timeString);
     add("service", service);
     add("pdu",     pdu);
+    add("rx carrier nr", m_carrierNum);
 
     add("tn", tetraTime.tn);
     add("fn", tetraTime.fn);
@@ -115,6 +117,7 @@ void Report::startUPlane(std::string service, std::string pdu, const TetraTime t
 
     add("service", service);
     add("pdu",     pdu);
+    add("rx carrier nr", m_carrierNum);
 
     add("tn", tetraTime.tn);
     add("fn", tetraTime.fn);

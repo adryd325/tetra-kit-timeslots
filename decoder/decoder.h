@@ -64,7 +64,7 @@ namespace Tetra {
 
     class TetraDecoder {
     public:
-        TetraDecoder(int socketFd, bool bRemoveFillBits, const LogLevel logLevel, bool bEnableWiresharkOutput);
+        TetraDecoder(int socketFd, bool bRemoveFillBits, const LogLevel logLevel, bool bEnableWiresharkOutput, int selfCarrierNum);
         ~TetraDecoder();
 
         void printData();
@@ -85,6 +85,7 @@ namespace Tetra {
         uint32_t patternAtPositionScore(std::vector<uint8_t> data, std::vector<uint8_t> pattern, std::size_t position);
 
         int m_socketFd = 0;                                                     ///< UDP socket to write to
+        int m_selfCarrierNum = 0;                                               ///< Carrier number of own downlink to send to recorder
 
         Log    * m_log;                                                         ///< LOG to stdout
         Report * m_report;                                                      ///< JSON UDP reporting

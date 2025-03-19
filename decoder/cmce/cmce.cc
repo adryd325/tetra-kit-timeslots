@@ -855,6 +855,8 @@ void Cmce::parseDTxGranted(Pdu pdu)
     m_log->print(LogLevel::HIGH, "DEBUG ::%-44s - pdu = %s\n", "cmce_parse_d_tx_granted", pdu.toString().c_str());
 
     m_report->start("CMCE", "D-TX GRANTED", m_tetraTime, m_macAddress);
+    m_report->add("allocation carrier number", m_macAddress.allocationCarrierNumber);
+    m_report->add("allocation timeslot", m_macAddress.allocationTimeslot);
 
     uint32_t pos = 5;                                                           // pdu type
 
