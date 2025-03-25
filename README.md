@@ -44,6 +44,6 @@ To decode an entire site, for example:
 At the moment recorder has no arguments and just listens on port 42100 for udp messages from the decoder(s)
 
 Because of the reliance on channel allocations to sort and decode calls, It's required that one of the decoders is that of the control channel
-```
+```sh
 node --experimental-strip-types index.ts
 ```
