@@ -245,6 +245,27 @@ static void cid_add_ssi_to_cid(uint32_t cid, uint32_t ssi)
     }
 }
 
+
+/**
+ * @brief Associate a GSSI to a given CID. Add the CID is it doesn't exists.
+ * 
+ */
+
+ static void cid_set_gssi(uint32_t cid, uint32_t ssi)
+ {
+    if (ssi <= 0) return;
+
+    if (!cid_exists(cid))
+    {
+        cid_add(cid);
+    }
+
+    std::size_t index = cid_index(cid);
+
+    cid_list[index]->m_gssi = ssi;
+}
+
+
 /**
  * @brief Update CID usage marker
  *
@@ -332,7 +353,11 @@ void cid_parse_pdu(std::string data, FILE * fd_log)
     uint8_t  usage_marker;
     uint8_t  downlink_usage_marker;
     uint8_t  encryption_mode;
+    uint8_t  duplex;
     uint32_t ssi;
+    uint32_t calling_ssi = 0;
+    uint32_t txing_ssi = 0;
+
 
     bool b_valid = true;                                                        // check if the pdu is valid
 
@@ -341,7 +366,10 @@ void cid_parse_pdu(std::string data, FILE * fd_log)
     b_valid = b_valid && jparser->read("usage marker",    &usage_marker);
     b_valid = b_valid && jparser->read("encryption mode", &encryption_mode);
     b_valid = b_valid && jparser->read("ssi",             &ssi);
-
+    b_valid && jparser->read("calling parrty ssi", &calling_ssi);
+    b_valid && jparser->read("transmitting party ssi", &txing_ssi);
+    b_valid && jparser->read("simplex/duplex selection",  &duplex);
+    
     if (!b_valid)                                                               // invalid Json text, stop processing here
     {
         delete jparser;
@@ -399,10 +427,26 @@ void cid_parse_pdu(std::string data, FILE * fd_log)
     }
     else                                                                        // other services
     {
-        if ((!pdu.compare("D-ALERT")) ||
+        if (!pdu.compare("D-SETUP"))
+        {
+            // register new cid and attach ssi and usage marker
+            uint32_t cid;
+            b_valid = jparser->read("call identifier", &cid);
+
+            if (b_valid)
+            {
+                cid_update_usage_marker(cid, usage_marker);                     // CID will be added to list if it doesn't exists yet
+                cid_add_ssi_to_cid(cid, ssi);
+                if (calling_ssi != 0) cid_add_ssi_to_cid(cid, calling_ssi);
+                if (txing_ssi != 0) cid_add_ssi_to_cid(cid, txing_ssi);
+                if (!duplex) {
+                    cid_set_gssi(cid, ssi);
+                }
+                scr_update(data);
+            }
+        } else if ((!pdu.compare("D-ALERT")) ||
             (!pdu.compare("D-CONNECT")) ||
             (!pdu.compare("D-CONNECT ACK")) ||
-            (!pdu.compare("D-SETUP")) ||
             (!pdu.compare("D-STATUS")) ||
             (!pdu.compare("D-TX GRANTED")) ||
             (!pdu.compare("D-TX CEASED")))
@@ -415,6 +459,8 @@ void cid_parse_pdu(std::string data, FILE * fd_log)
             {
                 cid_update_usage_marker(cid, usage_marker);                     // CID will be added to list if it doesn't exists yet
                 cid_add_ssi_to_cid(cid, ssi);
+                if (calling_ssi != 0) cid_add_ssi_to_cid(cid, calling_ssi);
+                if (txing_ssi != 0) cid_add_ssi_to_cid(cid, txing_ssi);
                 scr_update(data);
             }
         }

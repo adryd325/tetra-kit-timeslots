@@ -13,6 +13,9 @@ codec/sdecoder
 codec/cdecoder
 recorder/wav/cdecoder
 recorder/wav/sdecoder
+recorder/raw
 decoder/decoder
 recorder/recorder
-raw/*
+recorder-js/unprocessed
+recorder-js/out
+**/node_modules

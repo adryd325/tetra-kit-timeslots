@@ -1,3 +1,0 @@
-#!/bin/sh
-#play acelp .out files
-cat $* | cdecoder /dev/stdin /dev/stdout | sdecoder /dev/stdin /dev/stdout | aplay -fS16_LE

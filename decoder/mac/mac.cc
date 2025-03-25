@@ -124,6 +124,24 @@ void Mac::incrementTn()
     {
         m_tetraTime.mn = 1;
     }
+
+    
+    std::chrono::time_point<std::chrono::system_clock> chrononow = std::chrono::high_resolution_clock::now();
+    std::chrono::nanoseconds chronons = std::chrono::duration_cast<std::chrono::nanoseconds>(chrononow.time_since_epoch());
+    int64_t ns = chronons.count();
+    float_t frames = static_cast<float_t>(round((static_cast<double_t>(ns-m_tetraTime.syncTime)) / 14166666));
+    
+    
+    frames += m_tetraTime.syncTn - 1.0f;
+    frames += m_tetraTime.syncFn * 4;
+    frames += m_tetraTime.syncMn * 4 * 18;
+
+
+    m_tetraTime.estTn = ((uint16_t)frames % 4) + 1;
+    m_tetraTime.estFn = ((uint16_t)floor((frames) / 4.0f)) % 18;
+    m_tetraTime.estMn = ((uint16_t)floor((frames) / (4.0f * 18.0f))) % 60;
+
+    // printf("TN/FN/MN = PRO %02d/%02d/%02d EST %02d/%02d/%02d\n", m_tetraTime.tn, m_tetraTime.fn, m_tetraTime.mn, m_tetraTime.estTn, m_tetraTime.estFn, m_tetraTime.estMn);
 }
 
 /**
@@ -1212,17 +1230,26 @@ Pdu Mac::pduProcessSync(Pdu pdu)
         if (m_tetraTime.tn != pdu.getValue(pos, 2) + 1) {
             printf("\n\x1b[1;31m!!!WARN!!! Timeslot desynced. had: %i got: %i\x1b[0m\n\n",m_tetraTime.tn,pdu.getValue(pos, 2)+1);
         }
-        m_tetraTime.tn = pdu.getValue(pos, 2) + 1;
+        m_tetraTime.tn = pdu.getValue(pos, 2) + 1;  
+        m_tetraTime.syncTn = m_tetraTime.tn;
         pos += 2;
         if (m_tetraTime.fn != pdu.getValue(pos, 5)) {
             printf("\n\x1b[1;31m!!!WARN!!! Frame desynced. had: %i got: %i\x1b[0m\n\n",m_tetraTime.fn,pdu.getValue(pos, 5));
         }
         m_tetraTime.fn = pdu.getValue(pos, 5);
+        m_tetraTime.syncFn = m_tetraTime.fn;
         pos += 5;
         if (m_tetraTime.mn != pdu.getValue(pos, 6)) {
             printf("\n\x1b[1;31m!!!WARN!!! Superframe desynced. had: %i got: %i\x1b[0m\n\n",m_tetraTime.mn, pdu.getValue(pos, 6));
         }
         m_tetraTime.mn = pdu.getValue(pos, 6);
+        m_tetraTime.syncMn = m_tetraTime.mn;
+        std::chrono::time_point<std::chrono::system_clock> chrononow = std::chrono::high_resolution_clock::now();
+        std::chrono::nanoseconds chronons = std::chrono::duration_cast<std::chrono::nanoseconds>(chrononow.time_since_epoch());
+        int64_t ns = chronons.count();
+
+        // printf("sync\n");
+        m_tetraTime.syncTime = ns;
         pos += 6;
         pos += 2;                                                               // sharing mode
         pos += 3;                                                               // reserved frames

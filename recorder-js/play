@@ -1,0 +1,6 @@
+#!/bin/sh
+cd "$(dirname "$0")" || exit $?
+cat $1 | \
+    ../codec/cdecoder /dev/stdin /dev/stdout | \
+    ../codec/sdecoder /dev/stdin /dev/stdout 2> /dev/null| \
+    aplay -fS16_LE -r 8000

@@ -2,6 +2,7 @@
 #define TETRA_H
 #include <cstdint>
 #include <string>
+#include <chrono>
 
 /**
  * @defgroup tetra_common TETRA common declarations
@@ -100,6 +101,16 @@ namespace Tetra {
         uint16_t tn;                                                            ///< time slot
         uint16_t fn;                                                            ///< frame number
         uint16_t mn;                                                            ///< multi-frame number
+
+        uint16_t estTn;                                                         ///< time slot
+        uint16_t estFn;                                                         ///< frame number
+        uint16_t estMn;                                                         ///< multi-frame number
+
+        uint16_t syncTn;                                                        ///< time slot
+        uint16_t syncFn;                                                        ///< frame number
+        uint16_t syncMn;                                                        ///< multi-frame number
+        
+        int64_t syncTime;
     };
 
     std::string macLogicalChannelName(MacLogicalChannel channel);

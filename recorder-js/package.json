@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@types/node": "^22.13.11",
+    "add": "^2.0.6"
+  },
+  "dependencies": {
+    "mkfifo": "^2.1.0"
+  },
+  "type": "module"
+}

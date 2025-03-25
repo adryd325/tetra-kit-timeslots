@@ -76,10 +76,52 @@ void call_identifier_t::clean_up()
     {
         if (difftime(now, m_last_traffic_time[m_usage_marker]) > TIMEOUT_RELEASE_S) // check if timeout exceed predefined value
         {
-            m_file_name[m_usage_marker] = "";                                       // reset the file name to release the marker
+            if (m_file_name[m_usage_marker] != "") { this->finish(); }
+            for (size_t i = 0; i < m_ssi.size(); i++) {
+                if (m_ssi[i].last_seen > TIMEOUT_RELEASE_S) {
+                    if (m_ssi[i].ssi == m_gssi) m_gssi = 0;
+                    m_ssi.erase(m_ssi.begin() + i);
+                    i--;
+                }
+            }
         }
     }
 
+}
+
+void call_identifier_t::finish() {
+    printf("Finish from %u %u\n", m_cid, m_usage_marker);
+
+    struct tm * timeinfo;
+    timeinfo = localtime(&m_first_traffic_time[m_usage_marker]);
+
+    std::string oldFilename = m_file_name[m_usage_marker];
+    char filename[512]  = "";
+    char time[16]       = "";
+    char ssisTmp[11]    = "";
+    std::string ssis    = "";
+    char format[4]      = "";
+
+    std::string format_str = oldFilename.substr(0, oldFilename.find("/"));
+    strncpy(format, format_str.c_str(), sizeof(format) - 1);
+    format[sizeof(format) - 1] = '\0'; // Ensure null termination
+
+    for (size_t i = 0; i < m_ssi.size(); i++) {
+        if (i > 7) break;
+        if (m_ssi.size() == 0) printf("PANIC!");
+        if (m_ssi[i].ssi == m_gssi) {
+            continue;
+        }
+        snprintf(ssisTmp, sizeof(ssisTmp), "_%08u", m_ssi[i].ssi);
+        ssis.append(ssisTmp);
+    }
+
+    strftime(time, 16, "%Y%m%d_%H%M%S", timeinfo);
+    snprintf(filename, sizeof(filename), "%s/%s_%06u_%02u_%08u%s.%s", format, time, m_cid, m_usage_marker, m_gssi, ssis.c_str(), format); // create file filename    
+
+    rename(oldFilename.c_str(), filename);
+    m_last_traffic_time[m_usage_marker] = (time_t)(-1);
+    m_file_name[m_usage_marker] = "";                                       // reset the file name to release the marker
 }
 
 /**
@@ -90,26 +132,29 @@ void call_identifier_t::clean_up()
 
 void call_identifier_t::push_traffic(const char * data, uint32_t len)
 {
+    
     time_t now;
     time(&now);
 
     if (difftime(now, m_last_traffic_time[m_usage_marker]) > TIMEOUT_S)         // check if timeout exceed predefined value
     {
-        m_file_name[m_usage_marker] = "";                                       // force to start a new record since timeout
+        if (m_file_name[m_usage_marker] != "") this->finish();
+        // force to start a new record since timeout
     }
 
     m_last_traffic_time[m_usage_marker] = now;
 
     if (m_file_name[m_usage_marker] == "")
     {
+        m_first_traffic_time[m_usage_marker] = now;
         struct tm * timeinfo;
         timeinfo = localtime(&now);
 
         char filename[512] = "";
         char tmp[16]       = "";
 
-        strftime(tmp, 16, "%Y%m%d_%H%M%S", timeinfo);                                             // get time
-        snprintf(filename, sizeof(filename), "out/%s_%06u_%02u.out", tmp, m_cid, m_usage_marker); // create file filename
+        strftime(tmp, 16, "%Y%m%d_%H%M%S", timeinfo);                                                          // get time
+        snprintf(filename, sizeof(filename), "out/%s_%06u_%02u_%08u.out.tmp", tmp, m_cid, m_usage_marker, m_gssi); // create file filename
 
         m_file_name[m_usage_marker] = filename;
         m_data_received = 0.;
@@ -139,23 +184,25 @@ void call_identifier_t::push_traffic_raw(const char * data, uint32_t len)
 
     // NOTE: the follwing part shouldn't be necessary anymore since cid_clean_up()
     // is ran to handle the timeouts every PDU received
-    if (difftime(now, m_last_traffic_time[m_usage_marker]) > TIMEOUT_S)         // check if timeout exceed predefined value
-    {
-        m_file_name[m_usage_marker] = "";                                       // force to start a new record since timeout
-    }
+    // if (difftime(now, m_last_traffic_time[m_usage_marker]) > TIMEOUT_S)         // check if timeout exceed predefined value
+    // {
+    //     if (m_file_name[m_usage_marker] != "") this->finish();
+    //     printf("m_file_name[m_usage_marker] %i %i %s\n", m_cid, m_usage_marker, m_file_name[m_usage_marker]);                                                   // force to start a new record since timeout
+    // }
 
     m_last_traffic_time[m_usage_marker] = now;
 
     if (m_file_name[m_usage_marker] == "")
     {
+        m_first_traffic_time[m_usage_marker] = now;
         struct tm * timeinfo;
         timeinfo = localtime(&now);
 
         char filename[512] = "";
         char tmp[16]       = "";
 
-        strftime(tmp, 16, "%Y%m%d_%H%M%S", timeinfo);                                             // get time
-        snprintf(filename, sizeof(filename), "raw/%s_%06u_%02u.raw", tmp, m_cid, m_usage_marker); // create file filename
+        strftime(tmp, 16, "%Y%m%d_%H%M%S", timeinfo);                                                          // get time
+        snprintf(filename, sizeof(filename), "raw/%s_%06u_%02u_%08u.raw.tmp", tmp, m_cid, m_usage_marker, m_gssi); // create file filename
 
         m_file_name[m_usage_marker] = filename;
         m_data_received = 0.;

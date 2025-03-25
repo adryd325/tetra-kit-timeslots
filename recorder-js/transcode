@@ -1,0 +1,6 @@
+#!/bin/sh
+# to do all this in nodejs is annoying, may as well do it in a seperate process
+cd "$(dirname "$0")" || exit $?
+../codec/cdecoder "$1" /dev/stdout | ../codec/sdecoder /dev/stdin /dev/stdout | ffmpeg -f s16le -ar 8000 -i - -f mp3 "$1.mp3"
+mv "$1.mp3" "$2"
+rm "$1"

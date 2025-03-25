@@ -24,7 +24,7 @@
 #include "cid.h"
 #include "call_identifier.h"
 
-#ifdef WITH_NCURSES
+#ifdef FALSE
 
 #include <ncurses.h>
 
@@ -185,7 +185,8 @@ void scr_init(int line_length, int max_bottom_line)
 
 void scr_update(std::string info)
 {
-    printf("%s\n", info.c_str());
+    printf("\n");
+    printf("\n");
 
     int cnt = 0;
     while (true)

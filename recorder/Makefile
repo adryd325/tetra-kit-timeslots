@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -O2 -std=c++11 -Wall -Wextra -I. -Iaudio -Iaudio/cdecoder -Iaudio/sdecoder -fmax-errors=5
+CFLAGS = -O2 -g -std=c++11 -Wall -Wextra -I. -Iaudio -Iaudio/cdecoder -Iaudio/sdecoder -fmax-errors=5
 LDFLAGS = -lncurses -lz
 
 # recorder

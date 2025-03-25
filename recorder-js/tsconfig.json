@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "module": "Node18",
+    "types": ["node"],
+    "target": "ES2024"
+  }
+}
