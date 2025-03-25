@@ -13,9 +13,10 @@ codec/sdecoder
 codec/cdecoder
 recorder/wav/cdecoder
 recorder/wav/sdecoder
-recorder/raw
+recorder/raw/*
 decoder/decoder
 recorder/recorder
-recorder-js/unprocessed
-recorder-js/out
+recorder-js/unprocessed/*
+recorder-js/out/*
+neighbour-cell-db/cells.json
 **/node_modules

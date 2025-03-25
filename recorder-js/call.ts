@@ -9,6 +9,21 @@ const OUT_FOLDER = "out";
 
 export const calls: Set<Call> = new Set();
 
+export function sortCallsByActivity(a: Call, b: Call) {
+  let atime = a.voiceTime;
+  let btime = b.voiceTime;
+
+  if (!atime) atime = a.cmceTime - 1000;
+  if (!btime) btime = a.cmceTime - 1000;
+
+  if (atime < btime) {
+    return 1;
+  } else if (atime > btime) {
+    return -1;
+  }
+  return 0;
+}
+
 export function getCallByCid(cid): Call {
   let call;
   for (call of calls) {
@@ -29,7 +44,7 @@ export function getCallByDownlinkInfo(usage, carrier, timeslot): Call | null {
       // Matching timeslots miiiight be finnicky, lets do our best
       if (
         MATCH_ONLY_USAGE ||
-        call.carrier == carrier && call.timeslot == timeslot
+        (call.carrier == carrier && call.timeslot == timeslot)
       ) {
         return call;
       }
@@ -48,6 +63,26 @@ export function releaseCallByCid(cid) {
     }
   }
 }
+
+const logCallsInterval = setInterval(() => {
+  if (calls.size > 0)
+    console.log(
+      `\x1b[1;32m${"ONGOING CALLS".padStart(
+        16
+      )}\x1b[0m --- Sorted by activity ------------------------------------------`
+    );
+  [...calls].sort(sortCallsByActivity).forEach((call) => {
+    console.log(
+      `\x1b[1;32m${"ONGOING CALLS".padStart(16)}\x1b[0m${
+        call.play ? "\x1b[1m" : ""
+      } cid:${call.cid} gssi:${call.gssi} usage:${call.usage} carrier:${
+        call.carrier
+      } timeslot:${call.timeslot} ssis:${[...call.ssis.keys()]
+        .filter((s) => s != call.gssi)
+        .join(",")}\x1b[0m`
+    );
+  });
+}, 2000);
 
 const cleanupInteval = setInterval((): void => {
   for (let call of calls) {
@@ -89,7 +124,7 @@ export class Call {
   carrier: number;
   timeslot: number;
 
-  gssi: number | null = null;
+  gssi: number = 0;
   // ssi, lastSeen
   ssis: Map<number, number> = new Map();
   duplex: boolean = false;
@@ -123,11 +158,11 @@ export class Call {
     fileName += "_";
     fileName += this.cid.toString().padStart(3, "0");
     fileName += "_";
-    fileName += this.usage.toString().padStart(2, "0");
+    fileName += (this.usage ?? "??").toString().padStart(2, "0");
     fileName += "_";
-    fileName += this.carrier.toString().padStart(4, "0");
+    fileName += (this.carrier ?? "????").toString().padStart(4, "0");
     fileName += "_";
-    fileName += this.timeslot.toString().padStart(2, "0");
+    fileName += (this.timeslot ?? "??").toString().padStart(2, "0");
     fileName += "_";
     fileName += (this.gssi ?? 0).toString().padStart(8, "0");
     let ssiCnt = 0;
@@ -145,7 +180,11 @@ export class Call {
   }
 
   setDownlinkInfo(usage, carrier, timeslot): void {
-    if (this.usage != usage || this.carrier != carrier || this.timeslot != timeslot) {
+    if (
+      this.usage != usage ||
+      this.carrier != carrier ||
+      this.timeslot != timeslot
+    ) {
       this.finish();
     }
     this.usage = usage;
