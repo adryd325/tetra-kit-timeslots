@@ -5,6 +5,7 @@ import {
   calls,
   getCallByCid,
   getCallByDownlinkInfo,
+  getCallBySsiIdentifier,
   releaseCallByCid,
   sortCallsByActivity,
 } from "./call.ts";
@@ -42,7 +43,7 @@ function handleUplane(msg, remoteInfo) {
   if (timeslot != 4) {
     // console.log("\x1b[31m!! TIMESLOT NOT 4? !!\x1b[0m")
   }
-  const call = getCallByDownlinkInfo(usage, carrier, timeslot);
+  let call = getCallByDownlinkInfo(usage, carrier, timeslot);
   let frame = Buffer.from(msg["frame"], "base64");
   if (call) {
     console.log(
@@ -54,15 +55,24 @@ function handleUplane(msg, remoteInfo) {
       submitPlaying(call, buffer);
     });
   } else {
+    call = getCallBySsiIdentifier(msg["actual ssi"], carrier, timeslot);
+    if (call && call.duplex) {
+      console.log(
+        "\x1b[1;36m" + "PRIVATE FRAME".padStart(16),
+        "\x1b[0m" +
+          `usage:${usage} carrier:${carrier} timeslot:${timeslot} rts:${msg["tn"]}`
+      );
+      // Listen to unassigned frames for debug
+      zlib.inflate(frame, (err, buffer) => {
+        call.submit(buffer); // Not processed atm, but increments voice frame time
+        submitPlaying(null, buffer, true);
+      });
+    }
     console.log(
       "\x1b[1;36m" + "UNASSIGNED FRAME".padStart(16),
       "\x1b[0m" +
         `usage:${usage} carrier:${carrier} timeslot:${timeslot} rts:${msg["tn"]}`
     );
-    // Listen to unassigned frames for debug
-    // zlib.inflate(frame, (err, buffer) => {
-    //   submitPlaying(null, buffer, true);
-    // });
   }
   return;
 }
@@ -85,7 +95,8 @@ function handleCmce(msg, remoteInfo) {
         msg["allocation carrier number"],
         msg["allocation timeslot"]
       );
-      call.gssi = msg["actual ssi"];
+      if (!call.duplex) call.gssi = msg["actual ssi"];
+      if (msg["address_type"] == 0b001) call.ssiIdentifier = msg["actual ssi"];
       call.addSsi(msg["actual ssi"]);
       if (msg["transmitting party ssi"]) {
         call.addSsi(msg["transmitting party ssi"]);

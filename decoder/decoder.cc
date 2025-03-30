@@ -108,9 +108,10 @@ bool TetraDecoder::rxSymbol(uint8_t sym)
 
     bool clearedFlag = false;
 
+    m_mac->incrementTn();
+
     if (frameFound || (m_bIsSynchronized && ((m_syncBitCounter % 510) == 0)))   // the frame can be processed either by presence of training sequence, either by synchronised and still allowed missing frames
     {
-        m_mac->incrementTn();
         processFrame();
 
         // frame has been processed, so clear it

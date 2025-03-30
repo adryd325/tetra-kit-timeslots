@@ -53,6 +53,22 @@ export function getCallByDownlinkInfo(usage, carrier, timeslot): Call | null {
   return null;
 }
 
+export function getCallBySsiIdentifier(ssi, carrier, timeslot): Call | null {
+  let call;
+  for (call of calls) {
+    if (call.ssiIdentifier === ssi) {
+      // Matching timeslots miiiight be finnicky, lets do our best
+      if (
+        MATCH_ONLY_USAGE ||
+        (call.carrier == carrier && call.timeslot == timeslot)
+      ) {
+        return call;
+      }
+    }
+  }
+  return null;
+}
+
 export function releaseCallByCid(cid) {
   for (let call of calls) {
     if (call.cid === cid) {
@@ -64,30 +80,10 @@ export function releaseCallByCid(cid) {
   }
 }
 
-const logCallsInterval = setInterval(() => {
-  if (calls.size > 0)
-    console.log(
-      `\x1b[1;32m${"ONGOING CALLS".padStart(
-        16
-      )}\x1b[0m --- Sorted by activity ------------------------------------------`
-    );
-  [...calls].sort(sortCallsByActivity).forEach((call) => {
-    console.log(
-      `\x1b[1;32m${"ONGOING CALLS".padStart(16)}\x1b[0m${
-        call.play ? "\x1b[1m" : ""
-      } cid:${call.cid} gssi:${call.gssi} usage:${call.usage} carrier:${
-        call.carrier
-      } timeslot:${call.timeslot} ssis:${[...call.ssis.keys()]
-        .filter((s) => s != call.gssi)
-        .join(",")}\x1b[0m`
-    );
-  });
-}, 2000);
-
 const cleanupInteval = setInterval((): void => {
   for (let call of calls) {
     // Clear calls that were never recorded
-    if (call.createTime + 60000 < Date.now()) {
+    if (call.createTime + 30000 < Date.now()) {
       if (call.voiceTime == null) {
         calls.delete(call);
       }
@@ -96,6 +92,7 @@ const cleanupInteval = setInterval((): void => {
     // Flush calls after a voice timeout of 10 seconds
     if (call.voiceTime != null && call.voiceTime + 10000 < Date.now()) {
       call.finish();
+      call.play = false;
     }
 
     // Expire SSIs after 30 seconds
@@ -109,12 +106,31 @@ const cleanupInteval = setInterval((): void => {
 
     // Expire Calls
     if (
-      (call.voiceTime != null && call.voiceTime + 60000 < Date.now()) ||
-      (call.cmceTime != null && call.cmceTime + 60000 < Date.now())
+      (call.voiceTime != null && call.voiceTime + 30000 < Date.now()) ||
+      (call.cmceTime != null && call.cmceTime + 30000 < Date.now())
     ) {
       calls.delete(call);
     }
   }
+
+  if (calls.size > 0)
+    console.log(
+      `\x1b[1;32m${"TRACKED CALLS".padStart(
+        16
+      )}\x1b[0m --- Sorted by activity ------------------------------------------`
+    );
+  [...calls].sort(sortCallsByActivity).forEach((call) => {
+    let quiet = call.voiceTime == null || call.voiceTime + 10000 < Date.now();
+    console.log(
+      `\x1b[1;32m${"TRACKED CALLS".padStart(16)}\x1b[0m${
+        call.play ? "\x1b[1m" : (quiet ? "\x1b[90m" : "")
+      } cid:${call.cid} gssi:${call.gssi} usage:${call.usage} carrier:${
+        call.carrier
+      } timeslot:${call.timeslot} duplex:${call.duplex} ssis:${[...call.ssis.keys()]
+        .filter((s) => s != call.gssi)
+        .join(",")}\x1b[0m`
+    );
+  });
 }, 1000);
 
 export class Call {
@@ -127,6 +143,7 @@ export class Call {
   gssi: number = 0;
   // ssi, lastSeen
   ssis: Map<number, number> = new Map();
+  ssiIdentifier: number | null = null;
   duplex: boolean = false;
   play: boolean = false;
 

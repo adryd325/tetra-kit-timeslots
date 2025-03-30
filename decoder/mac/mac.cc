@@ -125,7 +125,7 @@ void Mac::incrementTn()
         m_tetraTime.mn = 1;
     }
 
-    
+
     std::chrono::time_point<std::chrono::system_clock> chrononow = std::chrono::high_resolution_clock::now();
     std::chrono::nanoseconds chronons = std::chrono::duration_cast<std::chrono::nanoseconds>(chrononow.time_since_epoch());
     int64_t ns = chronons.count();
@@ -635,7 +635,8 @@ void Mac::pduProcessAach(Pdu pdu)
 
     m_macState.downlinkUsageMarker = 0;
 
-    if (m_tetraTime.fn == 18)                                                   // frame 18 is reserved for control signalling - 23.3.1.3
+    // We're not accurate enough in our timing to rely on this
+    if (false && m_tetraTime.fn == 18)                                          // frame 18 is reserved for control signalling - 23.3.1.3
     {
         m_macState.downlinkUsage = COMMON_CONTROL;
     }

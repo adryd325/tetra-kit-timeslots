@@ -8,14 +8,10 @@ let c = child_process.spawn("./play");
 let lastTraffic = 0;
 
 const closeInterval = setInterval(() => {
-  if (lastTraffic != 0 && lastTraffic + 100 < Date.now()) {
-    // Flush buffer?
+  if (lastTraffic != 0 && lastTraffic + 250 < Date.now()) {
+    // Flush buffer
     c.stdin.write(silence);
-    c.stdin.end();
-    // c.on("close", () => { console.log("closed")})
-
     lastTraffic = 0;
-    c = child_process.spawn("./play");
   }
 }, 25);
 
@@ -59,8 +55,6 @@ export function submitPlaying(call: Call, buffer: Buffer, force?: boolean) {
         call.gssi
       } `
     );
-    c.stdin.cork();
     c.stdin.write(buffer);
-    c.stdin.uncork();
   }
 }
