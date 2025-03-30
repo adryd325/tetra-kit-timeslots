@@ -39,10 +39,7 @@ function onMessage(msg, remoteInfo) {
 function handleUplane(msg, remoteInfo) {
   const usage = msg["downlink usage marker"];
   const carrier = msg["rx carrier nr"];
-  const timeslot = msg["etn"];
-  if (timeslot != 4) {
-    // console.log("\x1b[31m!! TIMESLOT NOT 4? !!\x1b[0m")
-  }
+  const timeslot = msg["tn"];
   let call = getCallByDownlinkInfo(usage, carrier, timeslot);
   let frame = Buffer.from(msg["frame"], "base64");
   if (call) {
@@ -63,10 +60,11 @@ function handleUplane(msg, remoteInfo) {
           `usage:${usage} carrier:${carrier} timeslot:${timeslot} rts:${msg["tn"]}`
       );
       // Listen to unassigned frames for debug
-      zlib.inflate(frame, (err, buffer) => {
-        call.submit(buffer); // Not processed atm, but increments voice frame time
-        submitPlaying(null, buffer, true);
-      });
+      // zlib.inflate(frame, (err, buffer) => {
+      //   call.submit(buffer); // Not processed atm, but increments voice frame time
+      //   submitPlaying(null, buffer, true);
+      // });
+      return;
     }
     console.log(
       "\x1b[1;36m" + "UNASSIGNED FRAME".padStart(16),
@@ -96,7 +94,7 @@ function handleCmce(msg, remoteInfo) {
         msg["allocation timeslot"]
       );
       if (!call.duplex) call.gssi = msg["actual ssi"];
-      if (msg["address_type"] == 0b001) call.ssiIdentifier = msg["actual ssi"];
+      if (msg["address_type"] == 0b001 && call.duplex) call.ssiIdentifier = msg["actual ssi"];
       call.addSsi(msg["actual ssi"]);
       if (msg["transmitting party ssi"]) {
         call.addSsi(msg["transmitting party ssi"]);
