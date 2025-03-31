@@ -215,7 +215,7 @@ int main(int argc, char * argv[])
     Tetra::TetraDecoder * decoder = new Tetra::TetraDecoder(udpSocketFd, bRemoveFillBits, logLevel, bEnableWiresharkOutput, selfCarrierNum);
 
     // receive buffer
-    const int RXBUF_LEN = 1024;
+    const int RXBUF_LEN = 2048;
     uint8_t rxBuf[RXBUF_LEN];
 
     while (!gSigintFlag)

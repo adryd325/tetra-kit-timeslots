@@ -72,6 +72,8 @@ namespace Tetra {
         void resetSynchronizer();
         bool rxSymbol(uint8_t sym);
 
+        uint64_t totalSymbols = 0;
+
     private:
         // 9.4.4.3.2 Normal training sequence
         const std::vector<uint8_t> NORMAL_TRAINING_SEQ_1       = {1,1,0,1,0,0,0,0,1,1,1,0,1,0,0,1,1,1,0,1,0,0}; // n1..n22
@@ -103,6 +105,7 @@ namespace Tetra {
 
         bool m_bIsSynchronized;                                                 ///< True is program is synchronized with burst
         uint64_t m_syncBitCounter;                                              ///< Synchronization bits counter
+        uint16_t m_rxBitsCounter;
 
         // burst data
         const std::size_t FRAME_LEN = 510;                                      ///< Burst length in bits
