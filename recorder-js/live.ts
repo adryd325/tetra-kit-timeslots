@@ -38,7 +38,7 @@ export function selectPlaying() {
   let nowPlaying = sortedCalls.find((a) => a.play);
   if (!nowPlaying) {
     selectSuitable(sortedCalls);
-  } else if (nowPlaying && nowPlaying.voiceTime + 1000 < Date.now()) {
+  } else if (nowPlaying && nowPlaying.voiceTime + 5000 < Date.now()) {
     // select new call to play
     nowPlaying.play = false;
     selectSuitable(sortedCalls);
@@ -47,6 +47,8 @@ export function selectPlaying() {
 }
 
 export function submitPlaying(call: Call, buffer: Buffer, force?: boolean) {
+  // Shhh
+  // return;
   selectPlaying();
   if (force || call.play) {
     lastTraffic = Date.now();

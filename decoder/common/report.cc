@@ -54,7 +54,6 @@ void Report::start(std::string service, std::string pdu, const TetraTime tetraTi
     add("rx carrier nr", m_carrierNum);
 
     add("tn", tetraTime.tn);
-    add("etn", tetraTime.estTn);
     add("fn", tetraTime.fn);
     add("mn", tetraTime.mn);
 
@@ -121,7 +120,6 @@ void Report::startUPlane(std::string service, std::string pdu, const TetraTime t
     add("rx carrier nr", m_carrierNum);
 
     add("tn", tetraTime.tn);
-    add("etn", tetraTime.estTn);
     add("fn", tetraTime.fn);
     add("mn", tetraTime.mn);
 

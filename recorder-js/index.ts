@@ -45,7 +45,7 @@ function handleUplane(msg, remoteInfo) {
   if (call) {
     console.log(
       "\x1b[1;36m" + "TRAFFIC FRAME".padStart(16) + "\x1b[0m",
-      `usage:${usage} carrier:${carrier} timeslot:${timeslot} rts:${msg["tn"]}`
+      `usage:${usage} carrier:${carrier} timeslot:${timeslot}`
     );
     zlib.inflate(frame, (err, buffer) => {
       call.submit(buffer);
@@ -57,7 +57,7 @@ function handleUplane(msg, remoteInfo) {
       console.log(
         "\x1b[1;36m" + "PRIVATE FRAME".padStart(16),
         "\x1b[0m" +
-          `usage:${usage} carrier:${carrier} timeslot:${timeslot} rts:${msg["tn"]}`
+          `usage:${usage} carrier:${carrier} timeslot:${timeslot}`
       );
       // Listen to unassigned frames for debug
       // zlib.inflate(frame, (err, buffer) => {
@@ -69,7 +69,7 @@ function handleUplane(msg, remoteInfo) {
     console.log(
       "\x1b[1;36m" + "UNASSIGNED FRAME".padStart(16),
       "\x1b[0m" +
-        `usage:${usage} carrier:${carrier} timeslot:${timeslot} rts:${msg["tn"]}`
+        `usage:${usage} carrier:${carrier} timeslot:${timeslot}`
     );
   }
   return;
