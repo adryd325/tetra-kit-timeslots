@@ -13,8 +13,8 @@ export function sortCallsByActivity(a: Call, b: Call) {
   let atime = a.voiceTime;
   let btime = b.voiceTime;
 
-  if (!atime) atime = a.cmceTime - 1000;
-  if (!btime) btime = a.cmceTime - 1000;
+  if (!atime) atime = a.cmceTime - 3000;
+  if (!btime) btime = a.cmceTime - 3000;
 
   if (atime < btime) {
     return 1;
