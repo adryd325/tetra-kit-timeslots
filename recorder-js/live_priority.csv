@@ -1,11 +1,12 @@
 GSSI,Priority,Comment
 60002,9,Red Alarm
 60101,9,All Call
-100020,5,Line 2
-100010,5,Line 1
-100040,5,Line 4
 102719,5,Incidents
 102720,5,Incidents
+100040,3,Line 4
+100020,3,Line 2
+100010,3,Line 1
 101114,3,Stations 1
 101011,3,Surface 1
 102727,3,Streetcars
+102740,2,Special Constables

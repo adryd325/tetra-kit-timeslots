@@ -87,7 +87,7 @@ function handleCmce(msg, remoteInfo) {
       cid = msg["call identifier"];
       call = getCallByCid(cid);
       call.cmceTime = Date.now();
-      call.duplex = !!msg["simplex/duplex selection"];
+      call.duplex = !!msg["simplex/duplex selection"] || msg["actual usage marker"] === undefined;
       call.setDownlinkInfo(
         msg["actual usage marker"],
         msg["allocation carrier number"],
