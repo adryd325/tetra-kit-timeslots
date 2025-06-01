@@ -181,7 +181,7 @@ void Mle::processDNwrkBroadcast(Pdu pdu)
 
     m_report->add("Cell load CA", pdu.getValue(pos, 2));
     pos += 2;
-
+    
     bool oFlag = pdu.getValue(pos, 1);                                          // option flag
     pos += 1;
     if (oFlag)                                                                  // there is type2 or type3/4 fields

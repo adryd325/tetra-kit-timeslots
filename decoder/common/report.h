@@ -14,6 +14,7 @@
 #include <rapidjson/writer.h>
 
 #include "tetra.h"
+#include "tetracell.h"
 #include "log.h"
 #include "base64.h"
 #include "pdu.h"
@@ -27,7 +28,7 @@ namespace Tetra {
 
     class Report {
     public:
-        Report(const int socketFd, Tetra::Log * log, const int carrierNum);
+        Report(const int socketFd, Tetra::Log * log, const int carrierNum, Tetra::TetraCell * tetraCell);
         ~Report();
 
         void start(const std::string service, const std::string pdu, const TetraTime tetraTime, const MacAddress macAddress);
@@ -47,6 +48,7 @@ namespace Tetra {
         int m_socketFd;                                                         ///< UDP socket to write to
         uint16_t m_carrierNum;                                                  ///< Carrier number of own downlink to send to recorder
         Tetra::Log * m_log;                                                     ///< Screen logger
+        Tetra::TetraCell * m_tetraCell;
 
         ///< rapidjson document
         rapidjson::GenericDocument<rapidjson::UTF8<>, rapidjson::CrtAllocator> m_jdoc;

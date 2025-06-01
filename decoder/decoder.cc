@@ -14,8 +14,8 @@ TetraDecoder::TetraDecoder(int socketFd, bool bRemoveFillBits, const LogLevel lo
 
     m_log       = new Log(logLevel);
 
-    m_report    = new Report(m_socketFd, m_log, m_selfCarrierNum);
     m_tetraCell = new TetraCell();
+    m_report    = new Report(m_socketFd, m_log, m_selfCarrierNum, m_tetraCell);
 
     m_sds    = new Sds(m_log, m_report);
     m_cmce   = new Cmce(m_log, m_report, m_sds);

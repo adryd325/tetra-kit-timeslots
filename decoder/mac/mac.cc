@@ -1095,9 +1095,10 @@ Pdu Mac::pduProcessSysinfo(Pdu pdu, int32_t * pduSizeInMac)
         uint8_t offset = pdu.getValue(pos, 2);                                  // offset (0, 1, 2, 3)-> (0, +6.25, -6.25, +12.5 kHz)
         pos += 2;
 
-        //uint8_t duplex_spacing = pdu.getValue(pos, 3);                            // duplex spacing;
+        uint8_t duplex_spacing = pdu.getValue(pos, 3);                          // duplex spacing;
         pos += 3;
 
+        uint8_t reverse_operation = pdu.getValue(pos, 1); 
         pos += 1;                                                               // reverse operation
         pos += 2;                                                               // number of common secondary control channels in use
         pos += 3;                                                               // MS_TXPWR_MAX_CELL
@@ -1122,6 +1123,8 @@ Pdu Mac::pduProcessSysinfo(Pdu pdu, int32_t * pduSizeInMac)
         uint32_t locationArea = pdu.getValue(pos, 14);
         
         m_tetraCell->setLocationArea(locationArea);
+
+        m_report->add("LA", locationArea);
 
         // calculate cell frequencies
 
@@ -1226,9 +1229,6 @@ Pdu Mac::pduProcessSync(Pdu pdu)
             printf("\n\x1b[1;31m!!!WARN!!! Superframe desynced. had: %i got: %i\x1b[0m\n\n",m_tetraTime.mn, pdu.getValue(pos, 6));
         }
         m_tetraTime.mn = pdu.getValue(pos, 6);
-        std::chrono::time_point<std::chrono::system_clock> chrononow = std::chrono::high_resolution_clock::now();
-        std::chrono::nanoseconds chronons = std::chrono::duration_cast<std::chrono::nanoseconds>(chrononow.time_since_epoch());
-        int64_t ns = chronons.count();
 
         pos += 6;
         pos += 2;                                                               // sharing mode

@@ -12,11 +12,12 @@ typedef rapidjson::GenericValue<rapidjson::UTF8<>, rapidjson::CrtAllocator> Gene
  *
  */
 
-Report::Report(const int socketFd, Tetra::Log * log, const int carrierNum)
+Report::Report(const int socketFd, Tetra::Log * log, const int carrierNum, TetraCell * tetraCell)
 {
     m_socketFd = socketFd;
     m_log      = log;
     m_carrierNum = (uint16_t) carrierNum;
+    m_tetraCell = tetraCell;
 }
 
 /**
@@ -56,6 +57,8 @@ void Report::start(std::string service, std::string pdu, const TetraTime tetraTi
     add("tn", tetraTime.tn);
     add("fn", tetraTime.fn);
     add("mn", tetraTime.mn);
+
+    add("cell_la", m_tetraCell->locationArea());
 
     // TODO improve SSI/USSI/EVENT label handling
     // only SSI is used for now, it is not always relevant

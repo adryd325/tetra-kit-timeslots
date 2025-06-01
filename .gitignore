@@ -18,5 +18,6 @@ decoder/decoder
 recorder/recorder
 recorder-js/unprocessed/*
 recorder-js/out/*
-neighbour-cell-db/cells.json
 **/node_modules
+neighbour-cell-collector/*.json
+neighbour-cell-collector/*/*.json
